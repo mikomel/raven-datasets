@@ -1,12 +1,12 @@
 # I-RAVEN Dataset extended with the Mesh structure
-This repository is a fork of implementation of 
+This repository is a fork of a implementation of 
 
 [Stratified Rule-Aware Network for Abstract Visual Reasoning](https://arxiv.org/abs/2002.06838)  
 Sheng Hu\*, Yuqing Ma\*, Xianglong Liu†, Yanlu Wei, Shihao Bai  
 *Proceedings of the AAAI Conference on Artificial Intelligence (AAAI)*, 2021  
 (\* equal contribution, † corresponding author)
 
-The code for the generation of I-RAVEN Dataset has been modified with the additional strucure called Mesh. The structure is created from the sets of lines that follow implemented rules on two attributes - Position and Number.
+The code for the generation of the I-RAVEN Dataset has been modified with the additional structure called Mesh. The structure is created from the set of lines that follow rules on two attributes - Position and Number.
 
 ## Dataset Generation
 Code to generate the dataset resides in the ```I-RAVEN``` folder. The dependencies are consistent with [the original RAVEN](https://github.com/WellyZhang/RAVEN).
