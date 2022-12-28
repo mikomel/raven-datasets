@@ -8,6 +8,10 @@ Sheng Hu\*, Yuqing Ma\*, Xianglong Liu†, Yanlu Wei, Shihao Bai
 
 The code for the generation of the I-RAVEN Dataset has been modified with the additional structure called Mesh. The structure is created from the set of lines that follow rules on two attributes - Position and Number.
 
+<div  align="center">    
+<img src="https://raw.githubusercontent.com/Adam-Kowalczyk/I-RAVEN-Mesh/master/Images/mesh_example.png" width="70%">
+</div> 
+
 ## Dataset Generation
 Code to generate the dataset resides in the ```I-RAVEN``` folder. The dependencies are consistent with [the original RAVEN](https://github.com/WellyZhang/RAVEN).
 * Python 2.7
