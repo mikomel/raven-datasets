@@ -6,7 +6,7 @@ from constraints import (gen_entity_constraint, gen_layout_constraint,
                          rule_constraint)
 
 
-def build_center_single():
+def build_center_single(add_mesh=False):
     # Build AoT here
     root = Root("Scene")
 
@@ -26,12 +26,19 @@ def build_center_single():
     comp.insert(layout)
 
     struct.insert(comp)
+
+    if add_mesh:
+        # Mesh comp
+        mesh = get_mesh_component()
+
+        struct.insert(mesh)
+
     root.insert(struct)
 
     return root
 
 
-def build_distribute_four():
+def build_distribute_four(add_mesh=False):
     # Build AoT here
     root = Root("Scene")
 
@@ -54,12 +61,19 @@ def build_distribute_four():
     comp.insert(layout)
 
     struct.insert(comp)
+
+    if add_mesh:
+        # Mesh comp
+        mesh = get_mesh_component()
+
+        struct.insert(mesh)
+
     root.insert(struct)
 
     return root
 
 
-def build_distribute_nine():
+def build_distribute_nine(add_mesh=False):
     # Build AoT here
     root = Root("Scene")
 
@@ -87,12 +101,45 @@ def build_distribute_nine():
     comp.insert(layout)
 
     struct.insert(comp)
+
+    if add_mesh:
+        # Mesh comp
+        mesh = get_mesh_component()
+
+        struct.insert(mesh)
+
     root.insert(struct)
     
     return root
 
 
-def build_left_center_single_right_center_single():
+def get_mesh_component(add_mesh=False):
+    mesh = Component("Mesh")
+
+    entity_constraint_mesh = gen_entity_constraint(type_min=6, type_max=6, size_min=0, size_max=0, color_min=0,
+                                                   color_max=0, angle_min=0, angle_max=0)
+    layout_constraint_mesh = gen_layout_constraint("lines",
+                                                   [(0.08, 0.08, 0.5, 0.08),
+                                                    (0.5, 0.08, 0.92, 0.08),
+                                                    (0.5, 0.08, 0.5, 0.5),
+                                                    (0.92, 0.08, 0.92, 0.5),
+                                                    (0.92, 0.5, 0.92, 0.92),
+                                                    (0.5, 0.5, 0.92, 0.5),
+                                                    (0.5, 0.92, 0.92, 0.92),
+                                                    (0.08, 0.92, 0.5, 0.92),
+                                                    (0.5, 0.5, 0.5, 0.92),
+                                                    (0.08, 0.5, 0.08, 0.92),
+                                                    (0.08, 0.08, 0.08, 0.5),
+                                                    (0.08, 0.5, 0.5, 0.5)],
+                                                   num_min=0,
+                                                   num_max=8)
+
+    layout_mesh = Layout("Mesh_Layout", layout_constraint_mesh, entity_constraint_mesh)
+    mesh.insert(layout_mesh)
+    return mesh
+
+
+def build_left_center_single_right_center_single(add_mesh=False):
     # Build AoT here
     root = Root("Scene")
 
@@ -125,12 +172,19 @@ def build_left_center_single_right_center_single():
 
     struct.insert(comp_left)
     struct.insert(comp_right)
+
+    if add_mesh:
+        # Mesh comp
+        mesh = get_mesh_component()
+
+        struct.insert(mesh)
+
     root.insert(struct)
     
     return root
 
 
-def build_up_center_single_down_center_single():
+def build_up_center_single_down_center_single(add_mesh=False):
     # Build AoT here
     root = Root("Scene")
 
@@ -163,12 +217,19 @@ def build_up_center_single_down_center_single():
 
     struct.insert(comp_up)
     struct.insert(comp_down)
+
+    if add_mesh:
+        # Mesh comp
+        mesh = get_mesh_component()
+
+        struct.insert(mesh)
+
     root.insert(struct)
     
     return root
 
 
-def build_in_center_single_out_center_single():
+def build_in_center_single_out_center_single(add_mesh=False):
     # Build AoT here
     root = Root("Scene")
 
@@ -203,12 +264,19 @@ def build_in_center_single_out_center_single():
 
     struct.insert(comp_out)
     struct.insert(comp_in)
+
+    if add_mesh:
+        # Mesh comp
+        mesh = get_mesh_component()
+
+        struct.insert(mesh)
+
     root.insert(struct)
 
     return root
 
 
-def build_in_distribute_four_out_center_single():
+def build_in_distribute_four_out_center_single(add_mesh=False):
     # Build AoT here
     root = Root("Scene")
 
@@ -246,6 +314,13 @@ def build_in_distribute_four_out_center_single():
 
     struct.insert(comp_out)
     struct.insert(comp_in)
+
+    if add_mesh:
+        # Mesh comp
+        mesh = get_mesh_component()
+
+        struct.insert(mesh)
+
     root.insert(struct)
 
     return root

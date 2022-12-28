@@ -2,6 +2,7 @@
 
 
 import cv2
+import random
 import numpy as np
 from PIL import Image
 
@@ -71,7 +72,7 @@ def merge_matrix_answer(matrix, answer):
     img_grid[-(IMAGE_SIZE * 2):, :] = answer_image
     return img_grid
 
-def render_panel(root):
+def render_panel(root, add_random_mesh = False):
     # Decompose the panel into a structure and its entities
     assert isinstance(root, Root)
     canvas = np.ones((IMAGE_SIZE, IMAGE_SIZE), np.uint8) * 255
@@ -79,11 +80,40 @@ def render_panel(root):
     structure_img = render_structure(structure)
     background = np.zeros((IMAGE_SIZE, IMAGE_SIZE), np.uint8)
     # note left components entities are in the lower layer
+    if add_random_mesh:
+        background = layer_add(background, render_web())
     for entity in entities:
         entity_img = render_entity(entity)
         background = layer_add(background, entity_img)
     background = layer_add(background, structure_img)
     return canvas - background
+
+def render_web():
+    nodes = [[(0.16, 0.16),
+               (0.16, 0.5),
+               (0.16, 0.83)],
+               [(0.5, 0.16),
+               (0.5, 0.5),
+               (0.5, 0.83)],
+               [(0.83, 0.16),
+               (0.83, 0.5),
+               (0.83, 0.83)]]
+    img = np.zeros((IMAGE_SIZE, IMAGE_SIZE), np.uint8)
+    for i in range(3):
+        for j in range(3):
+            sp = get_web_node(nodes, i, j)
+            if i + 1 < 3 and random.uniform(0, 1) < 0.5:
+                ep = get_web_node(nodes, i + 1, j)
+                cv2.line(img, sp, ep, 255, 3)
+
+            if j + 1 < 3 and random.uniform(0, 1) < 0.5:
+                ep = get_web_node(nodes, i, j + 1)
+                cv2.line(img, sp, ep, 255, 3)
+    return img
+
+
+def get_web_node(nodes, i, j):
+    return (int(nodes[i][j][0] * IMAGE_SIZE), int(nodes[i][j][1] * IMAGE_SIZE))
 
 
 def render_structure(structure_name):
@@ -106,6 +136,13 @@ def render_entity(entity):
     entity_color = entity.color.get_value()
     entity_angle = entity.angle.get_value()
     img = np.zeros((IMAGE_SIZE, IMAGE_SIZE), np.uint8)
+
+    if entity_type == "line":
+        starting_point = (int(entity_bbox[1] * IMAGE_SIZE), int(entity_bbox[0] * IMAGE_SIZE))
+        ending_point = (int(entity_bbox[3] * IMAGE_SIZE), int(entity_bbox[2] * IMAGE_SIZE))
+        width = DEFAULT_WIDTH
+        draw_line(img, [starting_point, ending_point], width)
+        return img
 
     # planar position: [x, y, w, h]
     # angular position: [x, y, w, h, x_c, y_c, omega]
@@ -289,3 +326,7 @@ def draw_circle(img, center, radius, color, width):
                    radius,
                    255,
                    width)
+
+
+def draw_line(img, pts, width):
+    cv2.line(img, pts[0], pts[1], 255, width)

@@ -99,6 +99,8 @@ class Type(Attribute):
     def sample(self, min_level=TYPE_MIN, max_level=TYPE_MAX):
         min_level = max(self.min_level, min_level)
         max_level = min(self.max_level, max_level)
+        if min_level == max_level + 1:
+            max_level = max_level + 1
         self.value_level = np.random.choice(range(min_level, max_level + 1))
 
     def sample_new(self, min_level=None, max_level=None, previous_values=None):
@@ -285,7 +287,7 @@ class Position(Attribute):
         super(Position, self).__init__("Position")
         # planar: [x_c, y_c, max_w, max_h]
         # angular: [x_c, y_c, max_w, max_h, x_r, y_r, omega]
-        assert pos_type in ("planar", "angular")
+        assert pos_type in ("planar", "angular", "lines")
         self.pos_type = pos_type
         self.values = pos_list
         self.value_idx = None

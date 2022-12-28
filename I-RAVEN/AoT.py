@@ -544,7 +544,8 @@ class Layout(AoTNode):
             pos = self.position.get_value()
             for i in range(len(pos)):
                 bbox = pos[i]
-                self.children[i].bbox = bbox
+                if i < len(self.children):
+                    self.children[i].bbox = bbox
 
         elif attr_name == "Type":
             for index in range(len(self.children)): 

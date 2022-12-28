@@ -103,7 +103,13 @@ class Progression(Rule):
                     entity.resample()
                 second_layout.insert(entity)
         elif self.attr == "Position":
-            second_pos_idx = (second_layout.position.get_value_idx() + self.value) % len(second_layout.position.values)
+            change_value = self.value
+            if current_layout.name == 'Mesh_Layout':
+                if change_value > 0:
+                    change_value = 3
+                else:
+                    change_value = -3
+            second_pos_idx = (second_layout.position.get_value_idx() + change_value) % len(second_layout.position.values)
             second_layout.position.set_value_idx(second_pos_idx)
             second_bbox = second_layout.position.get_value()
             for i in range(len(second_bbox)):

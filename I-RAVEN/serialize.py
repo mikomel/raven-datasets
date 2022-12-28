@@ -41,13 +41,20 @@ def serialize_aot(aot):
     return split, meta_structure
 
 
-def serialize_rules(rule_groups):
+def serialize_rules(rule_groups, is_mesh_present=False):
     """Meta matrix format
     ["Constant", "Progression", "Arithmetic", "Distribute_Three", "Number", "Position", "Type", "Size", "Color"]
     """
-    meta_matrix = np.zeros((8, 9), np.uint8)
+    meta_matrix = np.zeros((12, 9), np.uint8)
     counter = 0
-    for rule_group in rule_groups:
+
+    temp_rule_groups = rule_groups
+    if is_mesh_present and len(rule_groups) != 3:
+        temp_rule_groups = [rule_groups[0], [], rule_groups[1]]
+
+    for rule_group in temp_rule_groups:
+        if len(rule_group) == 0:
+            counter += 4
         for rule in rule_group:
             if rule.name == "Constant":
                 meta_matrix[counter, 0] = 1
@@ -72,6 +79,34 @@ def serialize_rules(rule_groups):
                 meta_matrix[counter, 8] = 1
             counter += 1
     return meta_matrix, np.bitwise_or.reduce(meta_matrix)
+
+def serialize_modifications(modifications, is_mesh_present=False, max_comp = 2):
+    """Meta matrix format (2 rows per answer - component 0 and 1)
+    ["Number", "Position", "Type", "Size", "Color"]
+    """
+    meta_matrix = np.zeros((24 if is_mesh_present else 16, 5), np.uint8)
+    counter = 0
+    for answer_mod in modifications:
+        for mod in answer_mod:
+            index = counter + mod[0]
+            attribute = mod[1]
+            if is_mesh_present and mod[0] == 1 and max_comp == 2:
+                index += 1
+            if attribute == "Number/Position":
+                meta_matrix[index, 0] = 1
+                meta_matrix[index, 1] = 1
+            elif attribute == "Number":
+                meta_matrix[index, 0] = 1
+            elif attribute == "Position":
+                meta_matrix[index, 1] = 1
+            elif attribute == "Type":
+                meta_matrix[index, 2] = 1
+            elif attribute == "Size":
+                meta_matrix[index, 3] = 1
+            else:
+                meta_matrix[index, 4] = 1
+        counter += 3 if is_mesh_present else 2
+    return meta_matrix
 
 
 def dom_problem(instances, rule_groups):

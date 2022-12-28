@@ -21,7 +21,7 @@ from rendering import (generate_matrix, generate_matrix_answer, imsave, imshow,
                        render_panel)
 from Rule import Rule_Wrapper
 from sampling import sample_attr, sample_attr_avail, sample_rules
-from serialize import dom_problem, serialize_aot, serialize_rules
+from serialize import dom_problem, serialize_aot, serialize_rules, serialize_modifications
 from solver import solve
 
 
@@ -46,8 +46,10 @@ def separate(args, all_configs):
                 set_name = "test"
 
             root = all_configs[key]
+            num_of_components = len(root.children[0].children)
+            is_last_mesh = args.mesh == 2
             while True:
-                rule_groups = sample_rules()
+                rule_groups = sample_rules(num_of_components, is_last_mesh, args.position, args.type, args.size, args.color)
                 new_root = root.prune(rule_groups)    
                 if new_root is not None:
                     break
@@ -113,14 +115,14 @@ def separate(args, all_configs):
                     merge_component(to_merge[2], row_3_3, l)
             row_3_1, row_3_2, row_3_3 = to_merge
 
-            imgs = [render_panel(row_1_1),
-                    render_panel(row_1_2),
-                    render_panel(row_1_3),
-                    render_panel(row_2_1),
-                    render_panel(row_2_2),
-                    render_panel(row_2_3),
-                    render_panel(row_3_1),
-                    render_panel(row_3_2),
+            imgs = [render_panel(row_1_1, args.mesh == 1),
+                    render_panel(row_1_2, args.mesh == 1),
+                    render_panel(row_1_3, args.mesh == 1),
+                    render_panel(row_2_1, args.mesh == 1),
+                    render_panel(row_2_2, args.mesh == 1),
+                    render_panel(row_2_3, args.mesh == 1),
+                    render_panel(row_3_1, args.mesh == 1),
+                    render_panel(row_3_2, args.mesh == 1),
                     np.zeros((IMAGE_SIZE, IMAGE_SIZE), np.uint8)]
             context = [row_1_1, row_1_2, row_1_3, row_2_1, row_2_2, row_2_3, row_3_1, row_3_2]
             modifiable_attr = sample_attr_avail(rule_groups, row_3_3)
@@ -191,30 +193,39 @@ def separate(args, all_configs):
 
             random.shuffle(candidates)
             answers = []
+            mods = []
             for candidate in candidates:
-                answers.append(render_panel(candidate))
+                answers.append(render_panel(candidate, args.mesh == 1))
+                mods.append(candidate.modified_attr)
+
+
+
 
             #imsave(generate_matrix_answer(imgs + answers), "/media/dsg3/hs/RAVEN_image/experiments2/{}/{}.jpg".format(key, k))    
             
             image = imgs[0:8] + answers
             target = candidates.index(answer_AoT)
-            predicted = solve(rule_groups, context, candidates)
-            meta_matrix, meta_target = serialize_rules(rule_groups)
+            # predicted = solve(rule_groups, context, candidates)
+            is_mesh_present = start_node.children[0].children[-1].name == 'Mesh'
+            max_components = len(start_node.children[0].children)
+            meta_matrix, meta_target = serialize_rules(rule_groups, is_mesh_present)
             structure, meta_structure = serialize_aot(start_node)
+            modifications_matrix = serialize_modifications(mods, is_mesh_present, max_components)
             np.savez("{}/{}/RAVEN_{}_{}.npz".format(args.save_dir, key, k, set_name), image=image, 
                                                                                       target=target, 
-                                                                                      predict=predicted,
+                                                                                      predict=target,
                                                                                       meta_matrix=meta_matrix,
                                                                                       meta_target=meta_target, 
                                                                                       structure=structure,
-                                                                                      meta_structure=meta_structure)
+                                                                                      meta_structure=meta_structure,
+                                                                                      meta_answer_mods=modifications_matrix)
             with open("{}/{}/RAVEN_{}_{}.xml".format(args.save_dir, key, k, set_name), "w") as f:
                 dom = dom_problem(context + candidates, rule_groups)
                 f.write(dom)
             
-            if target == predicted:
-                acc += 1
-        print "Accuracy of {}: {}".format(key, float(acc) / args.num_samples)
+            # if target == predicted:
+            #    acc += 1
+        # print "Accuracy of {}: {}".format(key, float(acc) / args.num_samples)
     
 
 def main():
@@ -223,23 +234,40 @@ def main():
                                  help="number of samples for each component configuration")
     main_arg_parser.add_argument("--save-dir", type=str, default="/media/dsg3/datasets/I-RAVEN",
                                  help="path to folder where the generated dataset will be saved.")
-    main_arg_parser.add_argument("--seed", type=int, default=1234,
+    main_arg_parser.add_argument("--seed", type=int, default=-1,
                                  help="random seed for dataset generation")
     main_arg_parser.add_argument("--fuse", type=int, default=0,
                                  help="whether to fuse different configurations")
     main_arg_parser.add_argument("--val", type=float, default=2,
                                  help="the proportion of the size of validation set")
     main_arg_parser.add_argument("--test", type=float, default=2,
-                                 help="the proportion of the size of test set")                             
+                                 help="the proportion of the size of test set")
+    main_arg_parser.add_argument('--position', action='store_false')
+    main_arg_parser.add_argument('--color', action='store_false')
+    main_arg_parser.add_argument('--type', action='store_false')
+    main_arg_parser.add_argument('--size', action='store_false')
+    main_arg_parser.add_argument("--mesh", type=int, default=0,
+                                 help="0 - no mesh, 1 - random, 2 - rules")
     args = main_arg_parser.parse_args()
 
-    all_configs = {"center_single": build_center_single(),
-                   "distribute_four": build_distribute_four(),
-                   "distribute_nine": build_distribute_nine(),
-                   "left_center_single_right_center_single": build_left_center_single_right_center_single(),
-                   "up_center_single_down_center_single": build_up_center_single_down_center_single(),
-                   "in_center_single_out_center_single": build_in_center_single_out_center_single(),
-                   "in_distribute_four_out_center_single": build_in_distribute_four_out_center_single()}
+    all_configs = {
+        # "center_single": build_center_single(args.mesh == 2),
+        # "distribute_four": build_distribute_four(args.mesh == 2),
+        # "distribute_nine": build_distribute_nine(args.mesh == 2),
+        "left_center_single_right_center_single": build_left_center_single_right_center_single(args.mesh == 2),
+        "up_center_single_down_center_single": build_up_center_single_down_center_single(args.mesh == 2),
+        "in_center_single_out_center_single": build_in_center_single_out_center_single(args.mesh == 2),
+        "in_distribute_four_out_center_single": build_in_distribute_four_out_center_single(args.mesh == 2)
+    }
+
+    # all_configs = {"distribute_nine": build_distribute_nine(args.mesh == 2)}
+
+    if args.seed == -1:
+        args.seed = random.randint(1, 4231)
+
+    # args.random_mesh = True
+
+    # all_configs = {"distribute_nine": build_distribute_nine(args.mesh == 2)}
 
     if not os.path.exists(args.save_dir):
         os.mkdir(args.save_dir)

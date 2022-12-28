@@ -2,7 +2,7 @@
 
 
 # Maximum number of components in a RPM
-MAX_COMPONENTS = 2
+MAX_COMPONENTS = 3
 
 # Canvas parameters
 IMAGE_SIZE = 160
@@ -12,9 +12,9 @@ DEFAULT_WIDTH = 2
 
 # Attribute parameters
 # Number
-NUM_VALUES = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+NUM_VALUES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
 NUM_MIN = 0
-NUM_MAX = len(NUM_VALUES) - 1
+NUM_MAX = 8  # 9 -1
 
 # Uniformity
 UNI_VALUES = [False, False, False, True]
@@ -22,9 +22,9 @@ UNI_MIN = 0
 UNI_MAX = len(UNI_VALUES) - 1
 
 # Type
-TYPE_VALUES = ["none", "triangle", "square", "pentagon", "hexagon", "circle"]
+TYPE_VALUES = ["none", "triangle", "square", "pentagon", "hexagon", "circle", "line"]
 TYPE_MIN = 0
-TYPE_MAX = len(TYPE_VALUES) - 1
+TYPE_MAX = len(TYPE_VALUES) - 2
 
 # Size
 SIZE_VALUES = [0.4, 0.5, 0.6, 0.7, 0.8, 0.9]

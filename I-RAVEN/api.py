@@ -55,6 +55,12 @@ def get_real_bbox(entity_bbox, entity_type, entity_size, entity_angle):
                                  [center[0] + int(dl / 2.0 * np.sqrt(3)), center[1] + int(dl / 2.0), 1],
                                  [center[0] + int(dl / 2.0 * np.sqrt(3)), center[1] - int(dl / 2.0), 1]],
                                 np.int32)
+        if entity_type == "line":
+            sp = (int(entity_bbox[1] * IMAGE_SIZE), int(entity_bbox[0] * IMAGE_SIZE))
+            ep = (int(entity_bbox[3] * IMAGE_SIZE), int(entity_bbox[2] * IMAGE_SIZE))
+            homo_pts = np.array([[sp[0], sp[1], 1],
+                                 [ep[0], ep[1], 1]],
+                                np.int32)
         after_pts = np.dot(M, homo_pts.T)
         min_x = min(after_pts[1, :]) / IMAGE_SIZE
         max_x = max(after_pts[1, :]) / IMAGE_SIZE

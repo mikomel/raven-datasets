@@ -8,16 +8,28 @@ from const import MAX_COMPONENTS, RULE_ATTR
 from Rule import Rule_Wrapper
 
 
-def sample_rules():
+def sample_rules(num_components, is_last_mesh,pos_rules=True, type_rules=True, size_rules=True, color_rules=True):
     """First sample # components; for each component, sample a rule on each attribute.
     """
-    num_components = np.random.randint(1, MAX_COMPONENTS + 1)
+    # num_components = np.random.randint(1, MAX_COMPONENTS + 1)
+    rules_set = []
+    if pos_rules:
+        rules_set.append(RULE_ATTR[0])
+    if type_rules:
+        rules_set.append(RULE_ATTR[1])
+    if size_rules:
+        rules_set.append(RULE_ATTR[2])
+    if color_rules:
+        rules_set.append(RULE_ATTR[3])
     all_rules = []
     for i in range(num_components):
         all_rules_component = []
-        for j in range(len(RULE_ATTR)):
-            idx = np.random.choice(len(RULE_ATTR[j]))
-            name_attr_param = RULE_ATTR[j][idx]
+        for j in range(len(rules_set)):
+            if is_last_mesh and j != 0 and i == num_components - 1:
+                idx = len(rules_set[j]) - 1  # last constant
+            else:
+                idx = np.random.choice(len(rules_set[j]))
+            name_attr_param = rules_set[j][idx]
             all_rules_component.append(Rule_Wrapper(name_attr_param[0], name_attr_param[1], name_attr_param[2], component_idx=i))
         all_rules.append(all_rules_component)
     return all_rules
