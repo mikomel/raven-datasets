@@ -251,23 +251,17 @@ def main():
     args = main_arg_parser.parse_args()
 
     all_configs = {
-        # "center_single": build_center_single(args.mesh == 2),
-        # "distribute_four": build_distribute_four(args.mesh == 2),
-        # "distribute_nine": build_distribute_nine(args.mesh == 2),
+        "center_single": build_center_single(args.mesh == 2),
+        "distribute_four": build_distribute_four(args.mesh == 2),
+        "distribute_nine": build_distribute_nine(args.mesh == 2),
         "left_center_single_right_center_single": build_left_center_single_right_center_single(args.mesh == 2),
         "up_center_single_down_center_single": build_up_center_single_down_center_single(args.mesh == 2),
         "in_center_single_out_center_single": build_in_center_single_out_center_single(args.mesh == 2),
         "in_distribute_four_out_center_single": build_in_distribute_four_out_center_single(args.mesh == 2)
     }
 
-    # all_configs = {"distribute_nine": build_distribute_nine(args.mesh == 2)}
-
     if args.seed == -1:
         args.seed = random.randint(1, 4231)
-
-    # args.random_mesh = True
-
-    # all_configs = {"distribute_nine": build_distribute_nine(args.mesh == 2)}
 
     if not os.path.exists(args.save_dir):
         os.mkdir(args.save_dir)
