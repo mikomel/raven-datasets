@@ -28,7 +28,7 @@ def n_tree_serialize(aot):
 def serialize_aot(aot):
     """Meta Structure format
     META_STRUCTURE_FORMAT provided by const.py
-    """    
+    """
     n_tree = n_tree_serialize(aot)
     meta_structure = np.zeros(len(META_STRUCTURE_FORMAT), np.uint8)
     split = n_tree.split(".")
@@ -80,7 +80,8 @@ def serialize_rules(rule_groups, is_mesh_present=False):
             counter += 1
     return meta_matrix, np.bitwise_or.reduce(meta_matrix)
 
-def serialize_modifications(modifications, is_mesh_present=False, max_comp = 2):
+
+def serialize_modifications(modifications, is_mesh_present=False, max_comp=2):
     """Meta matrix format (2 rows per answer - component 0 and 1)
     ["Number", "Position", "Type", "Size", "Color"]
     """
@@ -137,8 +138,20 @@ def dom_problem(instances, rule_groups):
                 entity_size = entity.size.get_value()
                 entity_angle = entity.angle.get_value()
                 entity_l.set("bbox", json.dumps(entity_bbox))
-                entity_l.set("real_bbox", json.dumps(get_real_bbox(entity_bbox, entity_type, entity_size, entity_angle)))
-                entity_l.set("mask", rle_encode(get_mask(entity_bbox, entity_type, entity_size, entity_angle)))
+                entity_l.set(
+                    "real_bbox",
+                    json.dumps(
+                        get_real_bbox(
+                            entity_bbox, entity_type, entity_size, entity_angle
+                        )
+                    ),
+                )
+                entity_l.set(
+                    "mask",
+                    rle_encode(
+                        get_mask(entity_bbox, entity_type, entity_size, entity_angle)
+                    ),
+                )
                 entity_l.set("Type", str(entity.type.get_value_level()))
                 entity_l.set("Size", str(entity.size.get_value_level()))
                 entity_l.set("Color", str(entity.color.get_value_level()))
@@ -153,20 +166,17 @@ def dom_problem(instances, rule_groups):
             rule_j.set("name", rule.name)
             rule_j.set("attr", rule.attr)
 
-
     modified_attr = ET.SubElement(data, "Modified_attributes")
 
     for i in range(8):
-        candidate = instances[i+8]
+        candidate = instances[i + 8]
 
-        candidate_i = ET.SubElement(modified_attr, 'Candidate')
+        candidate_i = ET.SubElement(modified_attr, "Candidate")
         candidate_i.set("id", str(i))
 
         for attr in candidate.modified_attr:
-            attr_j =  ET.SubElement(candidate_i, "Attribute")
-            attr_j.set('component_id',str(attr[0]))
-            attr_j.set('name',attr[1])
-
-
+            attr_j = ET.SubElement(candidate_i, "Attribute")
+            attr_j.set("component_id", str(attr[0]))
+            attr_j.set("name", attr[1])
 
     return ET.tostring(data)

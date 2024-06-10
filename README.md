@@ -28,6 +28,12 @@ pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
+Code was formatted with [Black](https://black.readthedocs.io/en/stable/).
+It can be installed with:
+```bash
+pip install black==24.4.2
+```
+
 ## Usage
 
 Source code is located in the `I-RAVEN/` directory:

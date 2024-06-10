@@ -45,8 +45,7 @@ class Rule(object):
         self.sample()
 
     def sample(self):
-        """Sample a parameter from the parameter list.
-        """
+        """Sample a parameter from the parameter list."""
         if self.params is not None:
             self.value = np.random.choice(self.params)
 
@@ -63,8 +62,7 @@ class Rule(object):
 
 
 class Constant(Rule):
-    """Unary operator. Nothing changes.
-    """
+    """Unary operator. Nothing changes."""
 
     def __init__(self, name, attr, param, component_idx):
         super(Constant, self).__init__(name, attr, param, component_idx)
@@ -76,8 +74,7 @@ class Constant(Rule):
 
 
 class Progression(Rule):
-    """Unary operator. Attribute difference on two consequetive Panels remains the same.
-    """
+    """Unary operator. Attribute difference on two consequetive Panels remains the same."""
 
     def __init__(self, name, attr, param, component_idx):
         super(Progression, self).__init__(name, attr, param, component_idx)
@@ -91,7 +88,9 @@ class Progression(Rule):
         second_aot = copy.deepcopy(in_aot)
         second_layout = second_aot.children[0].children[self.component_idx].children[0]
         if self.attr == "Number":
-            second_layout.number.set_value_level(second_layout.number.get_value_level() + self.value)
+            second_layout.number.set_value_level(
+                second_layout.number.get_value_level() + self.value
+            )
             second_layout.position.sample(second_layout.number.get_value())
             pos = second_layout.position.get_value()
             del second_layout.children[:]
@@ -104,13 +103,14 @@ class Progression(Rule):
                 second_layout.insert(entity)
         elif self.attr == "Position":
             change_value = self.value
-            if current_layout.name == 'Mesh_Layout':
+            if current_layout.name == "Mesh_Layout":
                 if change_value > 0:
                     change_value = 3
                 else:
                     change_value = -3
             second_pos_idx = (
-                                         second_layout.position.get_value_idx() + change_value) % len(second_layout.position.values)
+                second_layout.position.get_value_idx() + change_value
+            ) % len(second_layout.position.values)
             second_layout.position.set_value_idx(second_pos_idx)
             second_bbox = second_layout.position.get_value()
             for i in range(len(second_bbox)):
@@ -167,22 +167,37 @@ class Arithmetic(Rule):
             if len(self.memory) > 0:
                 first_layout_number_level = self.memory.pop()
                 if self.value > 0:
-                    total = first_layout_number_level + 1 + current_layout.number.get_value()
+                    total = (
+                        first_layout_number_level
+                        + 1
+                        + current_layout.number.get_value()
+                    )
                 else:
-                    total = first_layout_number_level + 1 - current_layout.number.get_value()
+                    total = (
+                        first_layout_number_level
+                        + 1
+                        - current_layout.number.get_value()
+                    )
                 second_layout.number.set_value_level(total - 1)
             # the second col
             else:
                 old_value_level = current_layout.number.get_value_level()
                 self.memory.append(old_value_level)
                 if self.value > 0:
-                    num_max_level_orig = sum(current_layout.layout_constraint["Number"]) + 1
+                    num_max_level_orig = (
+                        sum(current_layout.layout_constraint["Number"]) + 1
+                    )
                     new_num_max_level = num_max_level_orig - old_value_level - 1
                     second_layout.layout_constraint["Number"][1] = new_num_max_level
                 else:
-                    num_min_level_orig = (second_layout.layout_constraint["Number"][0] - 1) // 2
+                    num_min_level_orig = (
+                        second_layout.layout_constraint["Number"][0] - 1
+                    ) // 2
                     new_num_max_level = old_value_level - num_min_level_orig - 1
-                    second_layout.layout_constraint["Number"][:] = [num_min_level_orig, new_num_max_level]
+                    second_layout.layout_constraint["Number"][:] = [
+                        num_min_level_orig,
+                        new_num_max_level,
+                    ]
                 second_layout.reset_constraint("Number")
                 second_layout.number.sample()
             second_layout.position.sample(second_layout.number.get_value())
@@ -201,9 +216,13 @@ class Arithmetic(Rule):
             if len(self.memory) > 0:
                 first_layout_value_idx = self.memory.pop()
                 if self.value > 0:
-                    new_pos_idx = set(first_layout_value_idx) | set(current_layout.position.get_value_idx())
+                    new_pos_idx = set(first_layout_value_idx) | set(
+                        current_layout.position.get_value_idx()
+                    )
                 else:
-                    new_pos_idx = set(first_layout_value_idx) - set(current_layout.position.get_value_idx())
+                    new_pos_idx = set(first_layout_value_idx) - set(
+                        current_layout.position.get_value_idx()
+                    )
                 second_layout.number.set_value_level(len(new_pos_idx) - 1)
                 second_layout.position.set_value_idx(np.array(list(new_pos_idx)))
             # the second col
@@ -215,11 +234,17 @@ class Arithmetic(Rule):
                     second_layout.position.sample(second_layout.number.get_value())
                     # if UNION, not a subset; otherwise not clearly a union
                     if self.value > 0:
-                        if not (set(current_layout_value_idx) >= set(second_layout.position.get_value_idx())):
+                        if not (
+                            set(current_layout_value_idx)
+                            >= set(second_layout.position.get_value_idx())
+                        ):
                             break
                     # if DIFF, not a subset; otherwise no entities left
                     else:
-                        if not (set(current_layout_value_idx) <= set(second_layout.position.get_value_idx())):
+                        if not (
+                            set(current_layout_value_idx)
+                            <= set(second_layout.position.get_value_idx())
+                        ):
                             break
             pos = second_layout.position.get_value()
             del second_layout.children[:]
@@ -234,11 +259,17 @@ class Arithmetic(Rule):
             if len(self.memory) > 0:
                 first_layout_size_level = self.memory.pop()
                 if self.value > 0:
-                    new_size_value_level = first_layout_size_level + \
-                                           current_layout.children[0].size.get_value_level() + 1
+                    new_size_value_level = (
+                        first_layout_size_level
+                        + current_layout.children[0].size.get_value_level()
+                        + 1
+                    )
                 else:
-                    new_size_value_level = first_layout_size_level - \
-                                           current_layout.children[0].size.get_value_level() - 1
+                    new_size_value_level = (
+                        first_layout_size_level
+                        - current_layout.children[0].size.get_value_level()
+                        - 1
+                    )
                 for entity in second_layout.children:
                     entity.size.set_value_level(new_size_value_level)
             else:
@@ -249,34 +280,51 @@ class Arithmetic(Rule):
                     for entity in current_layout.children:
                         entity.size.set_value_level(old_value_level)
                 if self.value > 0:
-                    size_max_level_orig = sum(current_layout.entity_constraint["Size"]) + 1
+                    size_max_level_orig = (
+                        sum(current_layout.entity_constraint["Size"]) + 1
+                    )
                     new_size_max_level = size_max_level_orig - old_value_level - 1
                     # deepcopy breaks the link of constraints between Layout and Entity
                     # Need to reset each attribute
                     second_layout.entity_constraint["Size"][1] = new_size_max_level
                 else:
-                    size_min_level_orig = (current_layout.entity_constraint["Size"][0] - 1) // 2
+                    size_min_level_orig = (
+                        current_layout.entity_constraint["Size"][0] - 1
+                    ) // 2
                     new_size_max_level = old_value_level - size_min_level_orig - 1
-                    second_layout.entity_constraint["Size"] = [size_min_level_orig, new_size_max_level]
-                new_size_min_level, new_size_max_level = second_layout.entity_constraint["Size"]
+                    second_layout.entity_constraint["Size"] = [
+                        size_min_level_orig,
+                        new_size_max_level,
+                    ]
+                new_size_min_level, new_size_max_level = (
+                    second_layout.entity_constraint["Size"]
+                )
                 the_child = second_layout.children[0]
-                the_child.reset_constraint("Size", new_size_min_level, new_size_max_level)
+                the_child.reset_constraint(
+                    "Size", new_size_min_level, new_size_max_level
+                )
                 the_child.size.sample()
                 new_size_value_level = the_child.size.get_value_level()
                 for idx in range(1, len(second_layout.children)):
                     entity = second_layout.children[idx]
-                    entity.reset_constraint("Size", new_size_min_level, new_size_max_level)
+                    entity.reset_constraint(
+                        "Size", new_size_min_level, new_size_max_level
+                    )
                     entity.size.set_value_level(new_size_value_level)
         elif self.attr == "Color":
             self.color_count += 1
             if len(self.memory) > 0:
                 first_layout_color_level = self.memory.pop()
                 if self.value > 0:
-                    new_color_value_level = first_layout_color_level + \
-                                            current_layout.children[0].color.get_value_level()
+                    new_color_value_level = (
+                        first_layout_color_level
+                        + current_layout.children[0].color.get_value_level()
+                    )
                 else:
-                    new_color_value_level = first_layout_color_level - \
-                                            current_layout.children[0].color.get_value_level()
+                    new_color_value_level = (
+                        first_layout_color_level
+                        - current_layout.children[0].color.get_value_level()
+                    )
                 for entity in second_layout.children:
                     entity.color.set_value_level(new_color_value_level)
             else:
@@ -302,28 +350,45 @@ class Arithmetic(Rule):
                     for entity in current_layout.children:
                         entity.color.set_value_level(old_value_level)
                 if self.value > 0:
-                    color_max_level_orig = sum(current_layout.entity_constraint["Color"])
+                    color_max_level_orig = sum(
+                        current_layout.entity_constraint["Color"]
+                    )
                     new_color_max_level = color_max_level_orig - old_value_level
                     second_layout.entity_constraint["Color"][1] = new_color_max_level
                 else:
-                    color_min_level_orig = second_layout.entity_constraint["Color"][0] // 2
+                    color_min_level_orig = (
+                        second_layout.entity_constraint["Color"][0] // 2
+                    )
                     new_color_max_level = old_value_level
-                    second_layout.entity_constraint["Color"][:] = [color_min_level_orig, new_color_max_level]
-                new_color_min_level, new_color_max_level = second_layout.entity_constraint["Color"]
+                    second_layout.entity_constraint["Color"][:] = [
+                        color_min_level_orig,
+                        new_color_max_level,
+                    ]
+                new_color_min_level, new_color_max_level = (
+                    second_layout.entity_constraint["Color"]
+                )
                 the_child = second_layout.children[0]
-                the_child.reset_constraint("Color", new_color_min_level, new_color_max_level)
+                the_child.reset_constraint(
+                    "Color", new_color_min_level, new_color_max_level
+                )
                 the_child.color.sample()
                 new_color_value_level = the_child.color.get_value_level()
                 # the first time you apply this rule and get C_12 == 0
                 # set the alarm
                 if self.color_count == 1:
-                    self.color_white_alarm = (new_color_value_level == 0)
-                if self.color_count == 3 and self.color_white_alarm and new_color_value_level == 0:
+                    self.color_white_alarm = new_color_value_level == 0
+                if (
+                    self.color_count == 3
+                    and self.color_white_alarm
+                    and new_color_value_level == 0
+                ):
                     new_color_value_level = the_child.color.sample_new()
                     the_child.color.set_value_level(new_color_value_level)
                 for idx in range(1, len(second_layout.children)):
                     entity = second_layout.children[idx]
-                    entity.reset_constraint("Color", new_color_min_level, new_color_max_level)
+                    entity.reset_constraint(
+                        "Color", new_color_min_level, new_color_max_level
+                    )
                     entity.color.set_value_level(new_color_value_level)
         else:
             raise ValueError("Unsupported attriubute")
@@ -331,8 +396,7 @@ class Arithmetic(Rule):
 
 
 class Distribute_Three(Rule):
-    """Ternay operator. Three values across the columns form a fixed set.
-    """
+    """Ternay operator. Three values across the columns form a fixed set."""
 
     def __init__(self, name, attr, param, component_idx):
         super(Distribute_Three, self).__init__(name, attr, param, component_idx)
@@ -347,13 +411,19 @@ class Distribute_Three(Rule):
         second_layout = second_aot.children[0].children[self.component_idx].children[0]
         if self.attr == "Number":
             if self.count == 0:
-                all_value_levels = list(range(current_layout.layout_constraint["Number"][0],
-                                              current_layout.layout_constraint["Number"][1] + 1))
+                all_value_levels = list(
+                    range(
+                        current_layout.layout_constraint["Number"][0],
+                        current_layout.layout_constraint["Number"][1] + 1,
+                    )
+                )
                 current_value_level = current_layout.number.get_value_level()
                 idx = all_value_levels.index(current_value_level)
                 all_value_levels.pop(idx)
                 three_value_levels = np.random.choice(all_value_levels, 2, False)
-                three_value_levels = np.insert(three_value_levels, 0, current_value_level)
+                three_value_levels = np.insert(
+                    three_value_levels, 0, current_value_level
+                )
                 self.value_levels.append(three_value_levels[[0, 1, 2]])
                 if np.random.uniform() >= 0.5:
                     self.value_levels.append(three_value_levels[[1, 2, 0]])
@@ -368,7 +438,9 @@ class Distribute_Three(Rule):
                     current_layout.number.set_value_level(self.value_levels[row][0])
                     current_layout.resample()
                     second_aot = copy.deepcopy(aot)
-                    second_layout = second_aot.children[0].children[self.component_idx].children[0]
+                    second_layout = (
+                        second_aot.children[0].children[self.component_idx].children[0]
+                    )
                     second_layout.number.set_value_level(self.value_levels[row][1])
                 else:
                     second_layout.number.set_value_level(self.value_levels[row][2])
@@ -402,7 +474,9 @@ class Distribute_Three(Rule):
             else:
                 row, col = divmod(self.count, 2)
                 if col == 0:
-                    current_layout.number.set_value_level(len(self.value_levels[row][0]) - 1)
+                    current_layout.number.set_value_level(
+                        len(self.value_levels[row][0]) - 1
+                    )
                     current_layout.resample()
                     current_layout.position.set_value_idx(self.value_levels[row][0])
                     pos = current_layout.position.get_value()
@@ -410,7 +484,9 @@ class Distribute_Three(Rule):
                         entity = current_layout.children[i]
                         entity.bbox = pos[i]
                     second_aot = copy.deepcopy(aot)
-                    second_layout = second_aot.children[0].children[self.component_idx].children[0]
+                    second_layout = (
+                        second_aot.children[0].children[self.component_idx].children[0]
+                    )
                     second_layout.position.set_value_idx(self.value_levels[row][1])
                 else:
                     second_layout.position.set_value_idx(self.value_levels[row][2])
@@ -421,8 +497,10 @@ class Distribute_Three(Rule):
             self.count = (self.count + 1) % 6
         elif self.attr == "Type":
             if self.count == 0:
-                all_value_levels = range(current_layout.entity_constraint["Type"][0],
-                                         current_layout.entity_constraint["Type"][1] + 1)
+                all_value_levels = range(
+                    current_layout.entity_constraint["Type"][0],
+                    current_layout.entity_constraint["Type"][1] + 1,
+                )
                 # if np.random.uniform() >= 0.5 and 0 not in all_value_levels:
                 #     all_value_levels.insert(0, 0)
                 three_value_levels = np.random.choice(all_value_levels, 3, False)
@@ -454,8 +532,10 @@ class Distribute_Three(Rule):
             self.count = (self.count + 1) % 6
         elif self.attr == "Size":
             if self.count == 0:
-                all_value_levels = range(current_layout.entity_constraint["Size"][0],
-                                         current_layout.entity_constraint["Size"][1] + 1)
+                all_value_levels = range(
+                    current_layout.entity_constraint["Size"][0],
+                    current_layout.entity_constraint["Size"][1] + 1,
+                )
                 three_value_levels = np.random.choice(all_value_levels, 3, False)
                 self.value_levels.append(three_value_levels[[0, 1, 2]])
                 if np.random.uniform() >= 0.5:
@@ -484,8 +564,10 @@ class Distribute_Three(Rule):
             self.count = (self.count + 1) % 6
         elif self.attr == "Color":
             if self.count == 0:
-                all_value_levels = range(current_layout.entity_constraint["Color"][0],
-                                         current_layout.entity_constraint["Color"][1] + 1)
+                all_value_levels = range(
+                    current_layout.entity_constraint["Color"][0],
+                    current_layout.entity_constraint["Color"][1] + 1,
+                )
                 three_value_levels = np.random.choice(all_value_levels, 3, False)
                 self.value_levels.append(three_value_levels[[0, 1, 2]])
                 if np.random.uniform() >= 0.5:

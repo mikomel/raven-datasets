@@ -26,12 +26,14 @@ def generate_matrix(array_list):
     img_grid = np.zeros((IMAGE_SIZE * 3, IMAGE_SIZE * 3), np.uint8)
     for idx in range(len(array_list)):
         i, j = divmod(idx, 3)
-        img_grid[i * IMAGE_SIZE:(i + 1) * IMAGE_SIZE, j * IMAGE_SIZE:(j + 1) * IMAGE_SIZE] = array_list[idx]
+        img_grid[
+            i * IMAGE_SIZE : (i + 1) * IMAGE_SIZE, j * IMAGE_SIZE : (j + 1) * IMAGE_SIZE
+        ] = array_list[idx]
     # draw grid
     for x in [0.33, 0.67]:
-        img_grid[int(x * IMAGE_SIZE * 3) - 1:int(x * IMAGE_SIZE * 3) + 1, :] = 0
+        img_grid[int(x * IMAGE_SIZE * 3) - 1 : int(x * IMAGE_SIZE * 3) + 1, :] = 0
     for y in [0.33, 0.67]:
-        img_grid[:, int(y * IMAGE_SIZE * 3) - 1:int(y * IMAGE_SIZE * 3) + 1] = 0
+        img_grid[:, int(y * IMAGE_SIZE * 3) - 1 : int(y * IMAGE_SIZE * 3) + 1] = 0
     return img_grid
 
 
@@ -40,12 +42,14 @@ def generate_answers(array_list):
     img_grid = np.zeros((IMAGE_SIZE * 2, IMAGE_SIZE * 4), np.uint8)
     for idx in range(len(array_list)):
         i, j = divmod(idx, 4)
-        img_grid[i * IMAGE_SIZE:(i + 1) * IMAGE_SIZE, j * IMAGE_SIZE:(j + 1) * IMAGE_SIZE] = array_list[idx]
+        img_grid[
+            i * IMAGE_SIZE : (i + 1) * IMAGE_SIZE, j * IMAGE_SIZE : (j + 1) * IMAGE_SIZE
+        ] = array_list[idx]
     # draw grid
     for x in [0.5]:
-        img_grid[int(x * IMAGE_SIZE * 2) - 1:int(x * IMAGE_SIZE * 2) + 1, :] = 0
+        img_grid[int(x * IMAGE_SIZE * 2) - 1 : int(x * IMAGE_SIZE * 2) + 1, :] = 0
     for y in [0.25, 0.5, 0.75]:
-        img_grid[:, int(y * IMAGE_SIZE * 4) - 1:int(y * IMAGE_SIZE * 4) + 1] = 0
+        img_grid[:, int(y * IMAGE_SIZE * 4) - 1 : int(y * IMAGE_SIZE * 4) + 1] = 0
     return img_grid
 
 
@@ -55,7 +59,9 @@ def generate_matrix_answer(array_list):
     img_grid = np.zeros((IMAGE_SIZE * 6, IMAGE_SIZE * 3), np.uint8)
     for idx in range(len(array_list)):
         i, j = divmod(idx, 3)
-        img_grid[i * IMAGE_SIZE:(i + 1) * IMAGE_SIZE, j * IMAGE_SIZE:(j + 1) * IMAGE_SIZE] = array_list[idx]
+        img_grid[
+            i * IMAGE_SIZE : (i + 1) * IMAGE_SIZE, j * IMAGE_SIZE : (j + 1) * IMAGE_SIZE
+        ] = array_list[idx]
     # draw grid
     for x in [0.33, 0.67, 1.00, 1.33, 1.67]:
         img_grid[int(x * IMAGE_SIZE * 3), :] = 0
@@ -68,11 +74,14 @@ def merge_matrix_answer(matrix, answer):
     matrix_image = generate_matrix(matrix)
     answer_image = generate_answers(answer)
     img_grid = np.ones((IMAGE_SIZE * 5 + 20, IMAGE_SIZE * 4), np.uint8) * 255
-    img_grid[:IMAGE_SIZE * 3, int(0.5 * IMAGE_SIZE):int(3.5 * IMAGE_SIZE)] = matrix_image
-    img_grid[-(IMAGE_SIZE * 2):, :] = answer_image
+    img_grid[: IMAGE_SIZE * 3, int(0.5 * IMAGE_SIZE) : int(3.5 * IMAGE_SIZE)] = (
+        matrix_image
+    )
+    img_grid[-(IMAGE_SIZE * 2) :, :] = answer_image
     return img_grid
 
-def render_panel(root, add_random_mesh = False):
+
+def render_panel(root, add_random_mesh=False):
     # Decompose the panel into a structure and its entities
     assert isinstance(root, Root)
     canvas = np.ones((IMAGE_SIZE, IMAGE_SIZE), np.uint8) * 255
@@ -88,16 +97,13 @@ def render_panel(root, add_random_mesh = False):
     background = layer_add(background, structure_img)
     return canvas - background
 
+
 def render_web():
-    nodes = [[(0.16, 0.16),
-               (0.16, 0.5),
-               (0.16, 0.83)],
-               [(0.5, 0.16),
-               (0.5, 0.5),
-               (0.5, 0.83)],
-               [(0.83, 0.16),
-               (0.83, 0.5),
-               (0.83, 0.83)]]
+    nodes = [
+        [(0.16, 0.16), (0.16, 0.5), (0.16, 0.83)],
+        [(0.5, 0.16), (0.5, 0.5), (0.5, 0.83)],
+        [(0.83, 0.16), (0.83, 0.5), (0.83, 0.83)],
+    ]
     img = np.zeros((IMAGE_SIZE, IMAGE_SIZE), np.uint8)
     for i in range(3):
         for j in range(3):
@@ -138,8 +144,14 @@ def render_entity(entity):
     img = np.zeros((IMAGE_SIZE, IMAGE_SIZE), np.uint8)
 
     if entity_type == "line":
-        starting_point = (int(entity_bbox[1] * IMAGE_SIZE), int(entity_bbox[0] * IMAGE_SIZE))
-        ending_point = (int(entity_bbox[3] * IMAGE_SIZE), int(entity_bbox[2] * IMAGE_SIZE))
+        starting_point = (
+            int(entity_bbox[1] * IMAGE_SIZE),
+            int(entity_bbox[0] * IMAGE_SIZE),
+        )
+        ending_point = (
+            int(entity_bbox[3] * IMAGE_SIZE),
+            int(entity_bbox[2] * IMAGE_SIZE),
+        )
         width = DEFAULT_WIDTH
         draw_line(img, [starting_point, ending_point], width)
         return img
@@ -151,10 +163,14 @@ def render_entity(entity):
     if entity_type == "triangle":
         unit = min(entity_bbox[2], entity_bbox[3]) * IMAGE_SIZE / 2
         dl = int(unit * entity_size)
-        pts = np.array([[center[0], center[1] - dl], 
-                        [center[0] + int(dl / 2.0 * np.sqrt(3)), center[1] + int(dl / 2.0)], 
-                        [center[0] - int(dl / 2.0 * np.sqrt(3)), center[1] + int(dl / 2.0)]], 
-                       np.int32)
+        pts = np.array(
+            [
+                [center[0], center[1] - dl],
+                [center[0] + int(dl / 2.0 * np.sqrt(3)), center[1] + int(dl / 2.0)],
+                [center[0] - int(dl / 2.0 * np.sqrt(3)), center[1] + int(dl / 2.0)],
+            ],
+            np.int32,
+        )
         pts = pts.reshape((-1, 1, 2))
         color = 255 - entity_color
         width = DEFAULT_WIDTH
@@ -170,12 +186,28 @@ def render_entity(entity):
     elif entity_type == "pentagon":
         unit = min(entity_bbox[2], entity_bbox[3]) * IMAGE_SIZE / 2
         dl = int(unit * entity_size)
-        pts = np.array([[center[0], center[1] - dl],
-                        [center[0] - int(dl * np.cos(np.pi / 10)), center[1] - int(dl * np.sin(np.pi / 10))],
-                        [center[0] - int(dl * np.sin(np.pi / 5)), center[1] + int(dl * np.cos(np.pi / 5))],
-                        [center[0] + int(dl * np.sin(np.pi / 5)), center[1] + int(dl * np.cos(np.pi / 5))],
-                        [center[0] + int(dl * np.cos(np.pi / 10)), center[1] - int(dl * np.sin(np.pi / 10))]],
-                       np.int32)
+        pts = np.array(
+            [
+                [center[0], center[1] - dl],
+                [
+                    center[0] - int(dl * np.cos(np.pi / 10)),
+                    center[1] - int(dl * np.sin(np.pi / 10)),
+                ],
+                [
+                    center[0] - int(dl * np.sin(np.pi / 5)),
+                    center[1] + int(dl * np.cos(np.pi / 5)),
+                ],
+                [
+                    center[0] + int(dl * np.sin(np.pi / 5)),
+                    center[1] + int(dl * np.cos(np.pi / 5)),
+                ],
+                [
+                    center[0] + int(dl * np.cos(np.pi / 10)),
+                    center[1] - int(dl * np.sin(np.pi / 10)),
+                ],
+            ],
+            np.int32,
+        )
         pts = pts.reshape((-1, 1, 2))
         color = 255 - entity_color
         width = DEFAULT_WIDTH
@@ -183,13 +215,17 @@ def render_entity(entity):
     elif entity_type == "hexagon":
         unit = min(entity_bbox[2], entity_bbox[3]) * IMAGE_SIZE / 2
         dl = int(unit * entity_size)
-        pts = np.array([[center[0], center[1] - dl],
-                        [center[0] - int(dl / 2.0 * np.sqrt(3)), center[1] - int(dl / 2.0)],
-                        [center[0] - int(dl / 2.0 * np.sqrt(3)), center[1] + int(dl / 2.0)],
-                        [center[0], center[1] + dl],
-                        [center[0] + int(dl / 2.0 * np.sqrt(3)), center[1] + int(dl / 2.0)],
-                        [center[0] + int(dl / 2.0 * np.sqrt(3)), center[1] - int(dl / 2.0)]],
-                       np.int32)
+        pts = np.array(
+            [
+                [center[0], center[1] - dl],
+                [center[0] - int(dl / 2.0 * np.sqrt(3)), center[1] - int(dl / 2.0)],
+                [center[0] - int(dl / 2.0 * np.sqrt(3)), center[1] + int(dl / 2.0)],
+                [center[0], center[1] + dl],
+                [center[0] + int(dl / 2.0 * np.sqrt(3)), center[1] + int(dl / 2.0)],
+                [center[0] + int(dl / 2.0 * np.sqrt(3)), center[1] - int(dl / 2.0)],
+            ],
+            np.int32,
+        )
         pts = pts.reshape((-1, 1, 2))
         color = 255 - entity_color
         width = DEFAULT_WIDTH
@@ -209,7 +245,7 @@ def render_entity(entity):
         entity_angle = entity_bbox[6]
         center = (int(entity_bbox[5] * IMAGE_SIZE), int(entity_bbox[4] * IMAGE_SIZE))
         img = rotate(img, entity_angle, center=center)
-    # planar 
+    # planar
     else:
         img = rotate(img, entity_angle, center=center)
     # img = shift(img, *entity_position)
@@ -230,7 +266,9 @@ def rotate(img, angle, center=CENTER):
 
 
 def scale(img, tx, ty, center=CENTER):
-    M = np.array([[tx, 0, center[0] * (1 - tx)], [0, ty, center[1] * (1 - ty)]], np.float32)
+    M = np.array(
+        [[tx, 0, center[0] * (1 - tx)], [0, ty, center[1] * (1 - ty)]], np.float32
+    )
     img = cv2.warpAffine(img, M, (IMAGE_SIZE, IMAGE_SIZE), flags=cv2.INTER_LINEAR)
     return img
 
@@ -260,24 +298,12 @@ def draw_square(img, pt1, pt2, color, width):
     # if filled
     if color != 0:
         # fill the interior
-        cv2.rectangle(img,
-                      pt1,
-                      pt2,
-                      color, 
-                      -1)
+        cv2.rectangle(img, pt1, pt2, color, -1)
         # draw the edge
-        cv2.rectangle(img, 
-                      pt1,
-                      pt2,
-                      255,
-                      width)
+        cv2.rectangle(img, pt1, pt2, 255, width)
     # if not filled
     else:
-        cv2.rectangle(img, 
-                      pt1,
-                      pt2,
-                      255,
-                      width)
+        cv2.rectangle(img, pt1, pt2, 255, width)
 
 
 def draw_pentagon(img, pts, color, width):
@@ -308,24 +334,12 @@ def draw_circle(img, center, radius, color, width):
     # if filled
     if color != 0:
         # fill the interior
-        cv2.circle(img,
-                   center,
-                   radius,
-                   color,
-                   -1)
+        cv2.circle(img, center, radius, color, -1)
         # draw the edge
-        cv2.circle(img,
-                   center,
-                   radius,
-                   255,
-                   width)
+        cv2.circle(img, center, radius, 255, width)
     # if not filled
     else:
-        cv2.circle(img,
-                   center,
-                   radius,
-                   255,
-                   width)
+        cv2.circle(img, center, radius, 255, width)
 
 
 def draw_line(img, pts, width):

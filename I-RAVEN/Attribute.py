@@ -3,17 +3,33 @@
 
 import numpy as np
 
-from const import (ANGLE_MAX, ANGLE_MIN, ANGLE_VALUES, COLOR_MAX, COLOR_MIN,
-                   COLOR_VALUES, NUM_MAX, NUM_MIN, NUM_VALUES, SIZE_MAX,
-                   SIZE_MIN, SIZE_VALUES, TYPE_MAX, TYPE_MIN, TYPE_VALUES,
-                   UNI_MAX, UNI_MIN, UNI_VALUES)
+from const import (
+    ANGLE_MAX,
+    ANGLE_MIN,
+    ANGLE_VALUES,
+    COLOR_MAX,
+    COLOR_MIN,
+    COLOR_VALUES,
+    NUM_MAX,
+    NUM_MIN,
+    NUM_VALUES,
+    SIZE_MAX,
+    SIZE_MIN,
+    SIZE_VALUES,
+    TYPE_MAX,
+    TYPE_MIN,
+    TYPE_VALUES,
+    UNI_MAX,
+    UNI_MIN,
+    UNI_VALUES,
+)
 
 
 class Attribute(object):
     """Super-class for all attributes. This should not be instantiated.
     In the sub-class, each attribute should have a pre-defined value set
     and a member to indicate the index in the value set. This design enables
-    setting a value by modifying the index only. Also, each instance should 
+    setting a value by modifying the index only. Also, each instance should
     come with value index boundaries, set as min_level and max_level. Boundaries
     are good when we want to set constraints on the value set.
 
@@ -69,7 +85,9 @@ class Number(Attribute):
         else:
             values = range(min_level, max_level + 1)
         if not previous_values:
-            available = set(values) - set(self.previous_values) - set([self.value_level])
+            available = (
+                set(values) - set(self.previous_values) - set([self.value_level])
+            )
         else:
             available = set(values) - set(previous_values) - set([self.value_level])
         new_idx = np.random.choice(list(available))
@@ -109,7 +127,9 @@ class Type(Attribute):
         else:
             values = range(min_level, max_level + 1)
         if not previous_values:
-            available = set(values) - set(self.previous_values) - set([self.value_level])
+            available = (
+                set(values) - set(self.previous_values) - set([self.value_level])
+            )
         else:
             available = set(values) - set(previous_values) - set([self.value_level])
         new_idx = np.random.choice(list(available))
@@ -147,7 +167,9 @@ class Size(Attribute):
         else:
             values = range(min_level, max_level + 1)
         if not previous_values:
-            available = set(values) - set(self.previous_values) - set([self.value_level])
+            available = (
+                set(values) - set(self.previous_values) - set([self.value_level])
+            )
         else:
             available = set(values) - set(previous_values) - set([self.value_level])
         new_idx = np.random.choice(list(available))
@@ -185,7 +207,9 @@ class Color(Attribute):
         else:
             values = range(min_level, max_level + 1)
         if not previous_values:
-            available = set(values) - set(self.previous_values) - set([self.value_level])
+            available = (
+                set(values) - set(self.previous_values) - set([self.value_level])
+            )
         else:
             available = set(values) - set(previous_values) - set([self.value_level])
         new_idx = np.random.choice(list(available))
@@ -223,7 +247,9 @@ class Angle(Attribute):
         else:
             values = range(min_level, max_level + 1)
         if not previous_values:
-            available = set(values) - set(self.previous_values) - set([self.value_level])
+            available = (
+                set(values) - set(self.previous_values) - set([self.value_level])
+            )
         else:
             available = set(values) - set(previous_values) - set([self.value_level])
         new_idx = np.random.choice(list(available))
