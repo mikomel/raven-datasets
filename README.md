@@ -1,36 +1,57 @@
-# I-RAVEN Dataset extended with the Mesh structure
-This repository is a fork of a implementation of 
+# Generalization and Knowledge Transfer in Abstract Visual Reasoning Models
 
-[Stratified Rule-Aware Network for Abstract Visual Reasoning](https://arxiv.org/abs/2002.06838)  
-Sheng Hu\*, Yuqing Ma\*, Xianglong Liu†, Yanlu Wei, Shihao Bai  
-*Proceedings of the AAAI Conference on Artificial Intelligence (AAAI)*, 2021  
-(\* equal contribution, † corresponding author)
+This repository provides implementation of the Attributeless-I-RAVEN and I-RAVEN-Mesh datasets proposed in:
+Małkiński, Mikołaj, and Jacek Mańdziuk. "Generalization and Knowledge Transfer in Abstract Visual Reasoning Models." Preprint. Under review. (2024).
 
-The code for the generation of the I-RAVEN Dataset has been modified with the additional structure called Mesh. The structure is created from the set of lines that follow rules on two attributes - Position and Number.
+Relevant links:
+* Main project page: https://github.com/mikomel/raven
+* Methods and experiments: https://github.com/mikomel/raven-generalization
 
-<div  align="center">    
-<img src="https://raw.githubusercontent.com/Adam-Kowalczyk/I-RAVEN-Mesh/master/Images/mesh_example.png" width="70%">
-</div> 
+Generated datasets are publicly available on [Hugging Face Datasets](https://huggingface.co/docs/datasets/index):
+* Attributeless-I-RAVEN: https://huggingface.co/datasets/mikmal/attributeless-i-raven
+* I-RAVEN-Mesh: https://huggingface.co/datasets/mikmal/i-raven-mesh
 
-## Dataset Generation
-Code to generate the dataset resides in the ```I-RAVEN``` folder. The dependencies are consistent with [the original RAVEN](https://github.com/WellyZhang/RAVEN).
-* Python 2.7
-* OpenCV
-* numpy
-* tqdm 
-* scipy
-* pillow
+The implementation is forked from:
+* https://github.com/husheng12345/SRAN
+* https://github.com/Adam-Kowalczyk/I-RAVEN-Mesh
 
-See ```I-RAVEN/requirements.txt``` for a full list of packages required. To install the dependencies, run
+## Setup
+
+The project was implemented in Python 3.9.
+Dependencies are listed in `requirements.txt`.
+
+Create a virtual environment and install the required dependencies:
+```bash
+python3.9 -m venv venv
+source venv/bin/activate
+pip install --upgrade pip
+pip install -r requirements.txt
 ```
-pip install -r I-RAVEN/requirements.txt
+
+## Usage
+
+Source code is located in the `I-RAVEN/` directory:
+```bash
+cd I-RAVEN
 ```
-To generate a dataset, run
+
+Inspect cli arguments:
+```bash
+python main.py --help
 ```
-python I-RAVEN/main.py --num-samples <number of samples per configuration> --save-dir <directory to save the dataset> --mesh <1 - random, 2 - with rules>
+
+Generate Attributeless-I-RAVEN:
+```bash
+python main.py --save-dir I-RAVEN-attributeless-color --seed 42 --mesh 0 --color
+python main.py --save-dir I-RAVEN-attributeless-position --seed 42 --mesh 0 --position
+python main.py --save-dir I-RAVEN-attributeless-size --seed 42 --mesh 0 --size
+python main.py --save-dir I-RAVEN-attributeless-type --seed 42 --mesh 0 --type
 ```
-Check the ```I-RAVEN/main.py``` file for a full list of arguments you can adjust.
 
+Generate I-RAVEN-Mesh:
+```bash
+python main.py --save-dir I-RAVEN-Mesh --seed 42 --mesh 2
+```
 
-
-
+## Acknowledgement
+This paper builds on the MSc thesis titled "Transfer learning in abstract visual reasoning domain" by Adam Kowalczyk from the Warsaw University of Technology, Warsaw, Poland.

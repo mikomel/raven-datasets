@@ -18,9 +18,9 @@ def build_center_single(add_mesh=False):
 
     # Center_Single layout
     entity_constraint = gen_entity_constraint(type_min=1)
-    layout_constraint = gen_layout_constraint("planar", 
-                                              [(0.5, 0.5, 1, 1)], 
-                                              num_min=0, 
+    layout_constraint = gen_layout_constraint("planar",
+                                              [(0.5, 0.5, 1, 1)],
+                                              num_min=0,
                                               num_max=0)
     layout = Layout("Center_Single", layout_constraint, entity_constraint)
     comp.insert(layout)
@@ -85,7 +85,7 @@ def build_distribute_nine(add_mesh=False):
 
     # Distribute_Nine
     entity_constraint = gen_entity_constraint(type_min=1)
-    layout_constraint = gen_layout_constraint("planar", 
+    layout_constraint = gen_layout_constraint("planar",
                                               [(0.16, 0.16, 0.33, 0.33),
                                                (0.16, 0.5, 0.33, 0.33),
                                                (0.16, 0.83, 0.33, 0.33),
@@ -109,33 +109,34 @@ def build_distribute_nine(add_mesh=False):
         struct.insert(mesh)
 
     root.insert(struct)
-    
+
     return root
 
 
 def get_mesh_component(add_mesh=False):
     mesh = Component("Mesh")
 
-    entity_constraint_mesh = gen_entity_constraint(type_min=6, type_max=6, size_min=0, size_max=0, color_min=0,
-                                                   color_max=0, angle_min=0, angle_max=0)
-    layout_constraint_mesh = gen_layout_constraint("lines",
-                                                   [(0.08, 0.08, 0.5, 0.08),
-                                                    (0.5, 0.08, 0.92, 0.08),
-                                                    (0.5, 0.08, 0.5, 0.5),
-                                                    (0.92, 0.08, 0.92, 0.5),
-                                                    (0.92, 0.5, 0.92, 0.92),
-                                                    (0.5, 0.5, 0.92, 0.5),
-                                                    (0.5, 0.92, 0.92, 0.92),
-                                                    (0.08, 0.92, 0.5, 0.92),
-                                                    (0.5, 0.5, 0.5, 0.92),
-                                                    (0.08, 0.5, 0.08, 0.92),
-                                                    (0.08, 0.08, 0.08, 0.5),
-                                                    (0.08, 0.5, 0.5, 0.5)],
-                                                   num_min=0,
-                                                   num_max=8)
+    # Set type to "line". Prevent variability in terms of size, color, and angle.
+    entity_constraint = gen_entity_constraint(type_min=6, type_max=6, size_min=0, size_max=0, color_min=0,
+                                              color_max=0, angle_min=0, angle_max=0)
+    layout_constraint = gen_layout_constraint("lines",
+                                              [(0.08, 0.08, 0.5, 0.08),  # left-bottom - center-bottom
+                                               (0.5, 0.08, 0.92, 0.08),  # center-bottom - right-bottom
+                                               (0.5, 0.08, 0.5, 0.5),  # center-bottom - center-center
+                                               (0.92, 0.08, 0.92, 0.5),  # right-bottom - right-center
+                                               (0.92, 0.5, 0.92, 0.92),  # right-center - right-top
+                                               (0.5, 0.5, 0.92, 0.5),  # center-center- - right-center
+                                               (0.5, 0.92, 0.92, 0.92),  # center-top - right-top
+                                               (0.08, 0.92, 0.5, 0.92),  # left-top - center-top
+                                               (0.5, 0.5, 0.5, 0.92),  # center-center - center-top
+                                               (0.08, 0.5, 0.08, 0.92),  # left-center - left-top
+                                               (0.08, 0.08, 0.08, 0.5),  # left-bottom - left-center
+                                               (0.08, 0.5, 0.5, 0.5)],  # left-center - center-center
+                                              num_min=0,
+                                              num_max=11)
 
-    layout_mesh = Layout("Mesh_Layout", layout_constraint_mesh, entity_constraint_mesh)
-    mesh.insert(layout_mesh)
+    layout = Layout("Mesh_Layout", layout_constraint, entity_constraint)
+    mesh.insert(layout)
     return mesh
 
 
@@ -151,9 +152,9 @@ def build_left_center_single_right_center_single(add_mesh=False):
 
     # Left_Center_Single
     entity_constraint = gen_entity_constraint(type_min=1)
-    layout_constraint = gen_layout_constraint("planar", 
-                                              [(0.5, 0.25, 0.5, 0.5)], 
-                                              num_min=0, 
+    layout_constraint = gen_layout_constraint("planar",
+                                              [(0.5, 0.25, 0.5, 0.5)],
+                                              num_min=0,
                                               num_max=0)
     layout = Layout("Left_Center_Single", layout_constraint, entity_constraint)
     comp_left.insert(layout)
@@ -163,9 +164,9 @@ def build_left_center_single_right_center_single(add_mesh=False):
 
     # Right_Center_Single
     entity_constraint = gen_entity_constraint(type_min=1)
-    layout_constraint = gen_layout_constraint("planar", 
-                                              [(0.5, 0.75, 0.5, 0.5)], 
-                                              num_min=0, 
+    layout_constraint = gen_layout_constraint("planar",
+                                              [(0.5, 0.75, 0.5, 0.5)],
+                                              num_min=0,
                                               num_max=0)
     layout = Layout("Right_Center_Single", layout_constraint, entity_constraint)
     comp_right.insert(layout)
@@ -180,7 +181,7 @@ def build_left_center_single_right_center_single(add_mesh=False):
         struct.insert(mesh)
 
     root.insert(struct)
-    
+
     return root
 
 
@@ -196,9 +197,9 @@ def build_up_center_single_down_center_single(add_mesh=False):
 
     # Up_Center_Single
     entity_constraint = gen_entity_constraint(type_min=1)
-    layout_constraint = gen_layout_constraint("planar", 
-                                              [(0.25, 0.5, 0.5, 0.5)], 
-                                              num_min=0, 
+    layout_constraint = gen_layout_constraint("planar",
+                                              [(0.25, 0.5, 0.5, 0.5)],
+                                              num_min=0,
                                               num_max=0)
     layout = Layout("Up_Center_Single", layout_constraint, entity_constraint)
     comp_up.insert(layout)
@@ -208,9 +209,9 @@ def build_up_center_single_down_center_single(add_mesh=False):
 
     # Down_Center_Single
     entity_constraint = gen_entity_constraint(type_min=1)
-    layout_constraint = gen_layout_constraint("planar", 
-                                              [(0.75, 0.5, 0.5, 0.5)], 
-                                              num_min=0, 
+    layout_constraint = gen_layout_constraint("planar",
+                                              [(0.75, 0.5, 0.5, 0.5)],
+                                              num_min=0,
                                               num_max=0)
     layout = Layout("Down_Center_Single", layout_constraint, entity_constraint)
     comp_down.insert(layout)
@@ -225,7 +226,7 @@ def build_up_center_single_down_center_single(add_mesh=False):
         struct.insert(mesh)
 
     root.insert(struct)
-    
+
     return root
 
 
@@ -240,7 +241,7 @@ def build_in_center_single_out_center_single(add_mesh=False):
     comp_out = Component("Out")
 
     # Out_One
-    entity_constraint = gen_entity_constraint(type_min=1, 
+    entity_constraint = gen_entity_constraint(type_min=1,
                                               size_min=3,
                                               color_max=0)
     layout_constraint = gen_layout_constraint("planar",
@@ -287,7 +288,7 @@ def build_in_distribute_four_out_center_single(add_mesh=False):
     comp_out = Component("Out")
 
     # Out_One
-    entity_constraint = gen_entity_constraint(type_min=1, 
+    entity_constraint = gen_entity_constraint(type_min=1,
                                               size_min=3,
                                               color_max=0)
     layout_constraint = gen_layout_constraint("planar",

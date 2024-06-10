@@ -4,20 +4,21 @@
 import copy
 
 import numpy as np
-from scipy.misc import comb
+from scipy.special import comb
 
 from Attribute import Angle, Color, Number, Position, Size, Type, Uniformity
 from constraints import rule_constraint
 
 
 class AoTNode(object):
-    """Superclass of AoT. 
+    """Superclass of AoT.
     """
 
-    levels_next = {"Root": "Structure",
-                   "Structure": "Component",
-                   "Component": "Layout",
-                   "Layout": "Entity"}
+    levels_next = {
+        "Root": "Structure",
+        "Structure": "Component",
+        "Component": "Layout",
+        "Layout": "Entity"}
 
     def __init__(self, name, level, node_type, is_pg=False):
         self.name = name
@@ -26,7 +27,7 @@ class AoTNode(object):
         self.children = []
         self.is_pg = is_pg
         self.modified_attr = []
-    
+
     def insert(self, node):
         """Used for public.
         Arguments:
@@ -36,7 +37,7 @@ class AoTNode(object):
         assert self.node_type != "leaf"
         assert node.level == self.levels_next[self.level]
         self.children.append(node)
-    
+
     def _insert(self, node):
         """Used for private.
         Arguments:
@@ -46,9 +47,9 @@ class AoTNode(object):
         assert self.node_type != "leaf"
         assert node.level == self.levels_next[self.level]
         self.children.append(node)
-    
+
     def _resample(self, change_number):
-        """Resample the layout. If the number of entities change, resample also the 
+        """Resample the layout. If the number of entities change, resample also the
         position distribution; otherwise only resample each attribute for each entity.
         Arugments:
             change_number(bool): whether to the number has been reset
@@ -62,7 +63,7 @@ class AoTNode(object):
 
     def __repr__(self):
         return self.level + "." + self.name
-    
+
     def __str__(self):
         return self.level + "." + self.name
 
@@ -71,7 +72,7 @@ class Root(AoTNode):
 
     def __init__(self, name, is_pg=False):
         super(Root, self).__init__(name, level="Root", node_type="or", is_pg=is_pg)
-    
+
     def sample(self):
         """The function returns a separate AoT that is correctly parsed.
         Note that a new node is needed so that modification does not alter settings
@@ -90,7 +91,7 @@ class Root(AoTNode):
         self._resample(change_number)
 
     def prune(self, rule_groups):
-        """Prune the AoT such that all branches satisfy the constraints. 
+        """Prune the AoT such that all branches satisfy the constraints.
         Arguments:
             rule_groups(list of list of Rule): each list of Rule applies to a component
         Returns:
@@ -125,7 +126,7 @@ class Root(AoTNode):
             for child in component.children[0].children:
                 entities.append(child)
         return structure.name, entities
-    
+
     def sample_new(self, component_idx, attr_name, min_level, max_level, root):
         """Sample a new configuration. This is used for generating answers.
         Arguments:
@@ -138,8 +139,7 @@ class Root(AoTNode):
         assert self.is_pg
         self.children[0]._sample_new(component_idx, attr_name, min_level, max_level, root.children[0])
 
-
-    def sample_new_value(self, component_idx, attr_name, min_level, max_level, attr_uni, mode_3):      
+    def sample_new_value(self, component_idx, attr_name, min_level, max_level, attr_uni, mode_3):
         assert self.is_pg
         return self.children[0]._sample_new_value(component_idx, attr_name, min_level, max_level, attr_uni, mode_3)
 
@@ -154,7 +154,7 @@ class Structure(AoTNode):
 
     def __init__(self, name, is_pg=False):
         super(Structure, self).__init__(name, level="Structure", node_type="and", is_pg=is_pg)
-    
+
     def _sample(self):
         if self.is_pg:
             raise ValueError("Could not sample on a PG")
@@ -162,7 +162,7 @@ class Structure(AoTNode):
         for child in self.children:
             new_node.insert(child._sample())
         return new_node
-    
+
     def _prune(self, rule_groups):
         new_node = Structure(self.name)
         for i in range(len(self.children)):
@@ -174,17 +174,16 @@ class Structure(AoTNode):
                 return None
             new_node.insert(new_child)
         return new_node
-    
+
     def _sample_new(self, component_idx, attr_name, min_level, max_level, structure):
         self.children[component_idx]._sample_new(attr_name, min_level, max_level, structure.children[component_idx])
-
 
     def _sample_new_value(self, component_idx, attr_name, min_level, max_level, attr_uni, mode_3):
         return self.children[component_idx]._sample_new_value(attr_name, min_level, max_level, attr_uni, mode_3)
 
     def _apply_new_value(self, component_idx, attr_name, value):
         self.children[component_idx]._apply_new_value(attr_name, value)
-        
+
 
 class Component(AoTNode):
 
@@ -208,16 +207,15 @@ class Component(AoTNode):
         if len(new_node.children) == 0:
             new_node = None
         return new_node
-    
+
     def _sample_new(self, attr_name, min_level, max_level, component):
         self.children[0]._sample_new(attr_name, min_level, max_level, component.children[0])
 
     def _sample_new_value(self, attr_name, min_level, max_level, attr_uni, mode_3):
-        return self.children[0]._sample_new_value(attr_name, min_level, max_level, attr_uni, mode_3)    
-
+        return self.children[0]._sample_new_value(attr_name, min_level, max_level, attr_uni, mode_3)
 
     def _apply_new_value(self, attr_name, value):
-        self.children[0]._apply_new_value(attr_name, value)    
+        self.children[0]._apply_new_value(attr_name, value)
 
 
 class Layout(AoTNode):
@@ -225,9 +223,10 @@ class Layout(AoTNode):
     To copy a Layout, please use deepcopy such that newly instantiated and separated attributes are created.
     """
 
-    def __init__(self, name, layout_constraint, entity_constraint, 
-                             orig_layout_constraint=None, orig_entity_constraint=None, 
-                             sample_new_num_count=None, is_pg=False):
+    def __init__(
+            self, name, layout_constraint, entity_constraint,
+            orig_layout_constraint=None, orig_entity_constraint=None,
+            sample_new_num_count=None, is_pg=False):
         super(Layout, self).__init__(name, level="Layout", node_type="and", is_pg=is_pg)
         self.layout_constraint = layout_constraint
         self.entity_constraint = entity_constraint
@@ -278,10 +277,10 @@ class Layout(AoTNode):
             if not uni:
                 new_entity.resample()
             self._insert(new_entity)
-    
+
     def resample(self, change_number=False):
         self._resample(change_number)
-            
+
     def _sample(self):
         """Though Layout is an "and" node, we do not enumerate all possible configurations, but rather
         we treat it as a sampling process such that different configurtions are sampled. After the
@@ -307,7 +306,7 @@ class Layout(AoTNode):
                 node = Entity(name=str(i), bbox=bbox, entity_constraint=self.entity_constraint)
                 new_node._insert(node)
         return new_node
-        
+
     def _resample(self, change_number):
         """Resample each attribute for every child.
         This function is called across rows.
@@ -335,13 +334,13 @@ class Layout(AoTNode):
                 self._insert(node)
 
     def _update_constraint(self, rule_group):
-        """Update the constraint of the layout. If one constraint is not satisfied, return None 
+        """Update the constraint of the layout. If one constraint is not satisfied, return None
         such that this structure is disgarded.
         Arguments:
             rule_group(list of Rule): all rules to apply to this layout
         Returns:
             Layout(Layout): a new Layout node with independent attributes
-        """        
+        """
         num_min = self.layout_constraint["Number"][0]
         num_max = self.layout_constraint["Number"][1]
         uni_min = self.layout_constraint["Uni"][0]
@@ -352,11 +351,11 @@ class Layout(AoTNode):
         size_max = self.entity_constraint["Size"][1]
         color_min = self.entity_constraint["Color"][0]
         color_max = self.entity_constraint["Color"][1]
-        new_constraints = rule_constraint(rule_group, num_min, num_max, 
-                                                      uni_min, uni_max,
-                                                      type_min, type_max,
-                                                      size_min, size_max,
-                                                      color_min, color_max)
+        new_constraints = rule_constraint(rule_group, num_min, num_max,
+                                          uni_min, uni_max,
+                                          type_min, type_max,
+                                          size_min, size_max,
+                                          color_min, color_max)
         new_layout_constraint, new_entity_constraint = new_constraints
         new_num_min = new_layout_constraint["Number"][0]
         new_num_max = new_layout_constraint["Number"][1]
@@ -375,28 +374,28 @@ class Layout(AoTNode):
         if new_size_min > new_size_max:
             return None
         new_color_min = new_entity_constraint["Color"][0]
-        new_color_max = new_entity_constraint["Color"][1]                                    
+        new_color_max = new_entity_constraint["Color"][1]
         if new_color_min > new_color_max:
             return None
 
         new_layout_constraint = copy.deepcopy(self.layout_constraint)
         new_layout_constraint["Number"][:] = [new_num_min, new_num_max]
         new_layout_constraint["Uni"][:] = [new_uni_min, new_uni_max]
-        
+
         new_entity_constraint = copy.deepcopy(self.entity_constraint)
         new_entity_constraint["Type"][:] = [new_type_min, new_type_max]
         new_entity_constraint["Size"][:] = [new_size_min, new_size_max]
         new_entity_constraint["Color"][:] = [new_color_min, new_color_max]
         return Layout(self.name, new_layout_constraint, new_entity_constraint,
-                                 self.orig_layout_constraint, self.orig_entity_constraint,
-                                 self.sample_new_num_count)
-    
+                      self.orig_layout_constraint, self.orig_entity_constraint,
+                      self.sample_new_num_count)
+
     def reset_constraint(self, attr):
         attr_name = attr.lower()
         instance = getattr(self, attr_name)
         instance.min_level = self.layout_constraint[attr][0]
         instance.max_level = self.layout_constraint[attr][1]
-    
+
     def _sample_new(self, attr_name, min_level, max_level, layout):
         if attr_name == "Number":
             while True:
@@ -444,7 +443,6 @@ class Layout(AoTNode):
         else:
             raise ValueError("Unsupported operation")
 
-
     def _sample_new_value(self, attr_name, min_level, max_level, attr_uni, mode_3):
 
         ret = []
@@ -457,25 +455,25 @@ class Layout(AoTNode):
                 if self.num_count[value_level] == 1:
                     self.num_count[value_level] = 0
                     break
-            new_num = self.number.get_value(value_level)                
+            new_num = self.number.get_value(value_level)
             if previous_num >= new_num:
-                select = list(np.random.choice(previous_num, new_num, replace = False))
+                select = list(np.random.choice(previous_num, new_num, replace=False))
             else:
                 rest = new_num
                 select = []
                 while previous_num < rest:
-                    select += xrange(previous_num)
+                    select += range(previous_num)
                     rest -= previous_num
-                if rest>0:
-                    select += list(np.random.choice(previous_num, rest, replace = False))
+                if rest > 0:
+                    select += list(np.random.choice(previous_num, rest, replace=False))
             ret = [value_level, select]
 
             t = 1
             if mode_3 == '3-Position-Number':
                 t += 1
-            for i in xrange(t):
+            for i in range(t):
                 while True:
-                    new_value_idx = self.position.sample_new(new_num) 
+                    new_value_idx = self.position.sample_new(new_num)
                     set_new_value_idx = set(new_value_idx)
                     if set_new_value_idx not in self.sample_new_num_count[value_level][1]:
                         self.sample_new_num_count[value_level][0] -= 1
@@ -486,7 +484,7 @@ class Layout(AoTNode):
                 self.reset_num_count()
 
         elif attr_name == "Position":
-            new_value_idx = self.position.sample_new(self.number.get_value())            
+            new_value_idx = self.position.sample_new(self.number.get_value())
             ret = [new_value_idx]
 
         elif attr_name == "Type":
@@ -496,7 +494,7 @@ class Layout(AoTNode):
             else:
                 for index in range(len(self.children)):
                     new_value_level = self.children[index].type.sample_new(min_level, max_level)
-                    ret.append(new_value_level)                   
+                    ret.append(new_value_level)
 
         elif attr_name == "Size":
             if attr_uni:
@@ -506,7 +504,7 @@ class Layout(AoTNode):
                 for index in range(len(self.children)):
                     new_value_level = self.children[index].size.sample_new(min_level, max_level)
                     ret.append(new_value_level)
-      
+
         elif attr_name == "Color":
             if attr_uni:
                 new_value_level = self.children[0].color.sample_new(min_level, max_level)
@@ -514,7 +512,7 @@ class Layout(AoTNode):
             else:
                 for index in range(len(self.children)):
                     new_value_level = self.children[index].color.sample_new(min_level, max_level)
-                    ret.append(new_value_level)      
+                    ret.append(new_value_level)
         else:
             raise ValueError("Unsupported operation")
         return ret
@@ -527,20 +525,20 @@ class Layout(AoTNode):
             if L == 4 and self.position.isChanged:
                 position_value = value[3]
             else:
-                position_value = value[2] 
+                position_value = value[2]
             self.number.set_value_level(number_value)
             self.position.set_value_idx(position_value)
             pos = self.position.get_value()
             new_entity_list = [copy.deepcopy(self.children[idx]) for idx in select]
             del self.children[:]
             for i in range(len(pos)):
-                bbox = pos[i]                
+                bbox = pos[i]
                 self._insert(new_entity_list[i])
                 self.children[i].bbox = bbox
 
         elif attr_name == "Position":
             self.position.set_value_idx(value[0])
-            self.position.isChanged = True    
+            self.position.isChanged = True
             pos = self.position.get_value()
             for i in range(len(pos)):
                 bbox = pos[i]
@@ -548,16 +546,16 @@ class Layout(AoTNode):
                     self.children[i].bbox = bbox
 
         elif attr_name == "Type":
-            for index in range(len(self.children)): 
+            for index in range(len(self.children)):
                 self.children[index].type.set_value_level(value[index % L])
-            
+
         elif attr_name == "Size":
-            for index in range(len(self.children)):               
+            for index in range(len(self.children)):
                 self.children[index].size.set_value_level(value[index % L])
-         
+
         elif attr_name == "Color":
-            for index in range(len(self.children)):         
-                self.children[index].color.set_value_level(value[index % L])              
+            for index in range(len(self.children)):
+                self.children[index].color.set_value_level(value[index % L])
         else:
             raise ValueError("Unsupported operation")
 
@@ -579,7 +577,7 @@ class Entity(AoTNode):
         self.color.sample()
         self.angle = Angle(min_level=entity_constraint["Angle"][0], max_level=entity_constraint["Angle"][1])
         self.angle.sample()
-    
+
     def reset_constraint(self, attr, min_level, max_level):
         attr_name = attr.lower()
         self.entity_constraint[attr][:] = [min_level, max_level]

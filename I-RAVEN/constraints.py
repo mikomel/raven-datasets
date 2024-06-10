@@ -6,32 +6,70 @@ from const import (ANGLE_MAX, ANGLE_MIN, COLOR_MAX, COLOR_MIN, NUM_MAX,
                    UNI_MIN)
 
 
-def gen_layout_constraint(pos_type, pos_list, 
-                          num_min=NUM_MIN, num_max=NUM_MAX,
-                          uni_min=UNI_MIN, uni_max=UNI_MAX):
-    constraint = {"Number": [num_min, num_max],
-                  "Position": [pos_type, pos_list[:]],
-                  "Uni": [uni_min, uni_max]}
+def gen_layout_constraint(
+        pos_type, pos_list,
+        num_min=NUM_MIN, num_max=NUM_MAX,
+        uni_min=UNI_MIN, uni_max=UNI_MAX):
+    """
+    Generate constraints for the layout.
+    By default, the layout will have:
+        - num: [0, 8] (uses 0-based indexing, so the true number will be num+1)
+        - uni: [False, False, False, True] ?? (I guess these are the masks for each attribute)
+    :param pos_type: ??
+    :param pos_list: List of available positions to put the shapes in. Each element contains coordinates in the
+                     following form:
+                        - all but line: [x, y, width, height]
+                        - line: [x_from, y_from, x_to, y_to]
+    :param num_min: minimal number of shapes in the layout
+    :param num_max: maximal number of shapes in the layout
+    :param uni_min: ??
+    :param uni_max: ??
+    :return:
+    """
+    constraint = {
+        "Number": [num_min, num_max],
+        "Position": [pos_type, pos_list[:]],
+        "Uni": [uni_min, uni_max]}
     return constraint
 
 
-def gen_entity_constraint(type_min=TYPE_MIN, type_max=TYPE_MAX, 
-                          size_min=SIZE_MIN, size_max=SIZE_MAX, 
-                          color_min=COLOR_MIN, color_max=COLOR_MAX,
-                          angle_min=ANGLE_MIN, angle_max=ANGLE_MAX):
-    constraint = {"Type": [type_min, type_max],
-                  "Size": [size_min, size_max],
-                  "Color": [color_min, color_max],
-                  "Angle": [angle_min, angle_max]}
+def gen_entity_constraint(
+        type_min=TYPE_MIN, type_max=TYPE_MAX,
+        size_min=SIZE_MIN, size_max=SIZE_MAX,
+        color_min=COLOR_MIN, color_max=COLOR_MAX,
+        angle_min=ANGLE_MIN, angle_max=ANGLE_MAX):
+    """
+    Generate constraints for each entity applicable to the given layout.
+    By default, the entity will be of:
+        - type: ["none", "triangle", "square", "pentagon", "hexagon", "circle"]
+        - size: [0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
+        - color: [255, 224, 196, 168, 140, 112, 84, 56, 28, 0]
+        - angle: [-135, -90, -45, 0, 45, 90, 135, 180]
+    :param type_min: minimal index of entity's type
+    :param type_max: maximal index of entity's type
+    :param size_min: minimal index of entity's size
+    :param size_max: maximal index of entity's size
+    :param color_min: minimal index of entity's color
+    :param color_max: maximal index of entity's color
+    :param angle_min: minimal index of entity's angle
+    :param angle_max: maximal index of entity's angle
+    :return:
+    """
+    constraint = {
+        "Type": [type_min, type_max],
+        "Size": [size_min, size_max],
+        "Color": [color_min, color_max],
+        "Angle": [angle_min, angle_max]}
     return constraint
 
 
-def rule_constraint(rule_list, num_min, num_max, 
-                               uni_min, uni_max,
-                               type_min, type_max,
-                               size_min, size_max,
-                               color_min, color_max):
-    """Generate constraints given the rules and the original constraints 
+def rule_constraint(
+        rule_list, num_min, num_max,
+        uni_min, uni_max,
+        type_min, type_max,
+        size_min, size_max,
+        color_min, color_max):
+    """Generate constraints given the rules and the original constraints
     from layout and entity. Note that each attribute has at most one rule
     applied on it.
     Arguments:
@@ -128,10 +166,10 @@ def rule_constraint(rule_list, num_min, num_max,
             if rule.attr == "Color":
                 if color_max - color_min + 1 < 3:
                     color_max = color_min - 1
-        
-    return gen_layout_constraint(None, [], 
-                                 num_min, num_max, 
+
+    return gen_layout_constraint(None, [],
+                                 num_min, num_max,
                                  uni_min, uni_max), \
-           gen_entity_constraint(type_min, type_max, 
-                                 size_min, size_max, 
-                                 color_min, color_max)
+        gen_entity_constraint(type_min, type_max,
+                              size_min, size_max,
+                              color_min, color_max)
