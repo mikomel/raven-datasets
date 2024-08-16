@@ -6,6 +6,7 @@ import copy
 import os
 import random
 from typing import List
+from tqdm import tqdm
 
 import numpy as np
 
@@ -43,17 +44,21 @@ def separate(args, all_configs):
     should_render_random_mesh_component = args.mesh == 1
     contains_mesh_component = args.mesh == 2
 
-    ood_attribute_idx = -1
-    for i, is_iid_attribute in enumerate(
-        [args.position, args.type, args.size, args.color]
-    ):
+    ood_attribute_indices = []
+    train_set_rules = []
+    for i, attribute in enumerate(["position", "type", "size", "color"]):
+        is_iid_attribute = getattr(args, attribute)
         if not is_iid_attribute:
-            ood_attribute_idx = i
-            break
+            ood_attribute_indices.append(i)
+            train_set_rule = getattr(args, f"{attribute}_train_set_rule")
+            if attribute == "Type" and train_set_rule == "Arithmetic":
+                raise ValueError("Arithmetic on Type is unsupported")
+            train_set_rules.append(train_set_rule)
 
+    accs = {}
     for configuration in all_configs.keys():
         acc = 0
-        for k in range(args.num_samples):
+        for k in tqdm(range(args.num_samples), desc=configuration):
             count_num = k % 10
             if count_num < (10 - args.val - args.test):
                 set_name = "train"
@@ -70,8 +75,9 @@ def separate(args, all_configs):
                     num_components,
                     contains_mesh_component,
                     configuration,
-                    ood_attribute_idx,
+                    ood_attribute_indices,
                     set_name,
+                    train_set_rules,
                 )
                 new_root = root.prune(rule_groups)
                 if new_root is not None:
@@ -315,6 +321,8 @@ def separate(args, all_configs):
                 acc += 1
         # TODO: heuristics search is not implemented for the Mesh component
         print(f"Accuracy of {configuration}: {float(acc) / args.num_samples}")
+        accs[configuration] = float(acc) / args.num_samples
+    return accs
 
 
 RULES = ["Constant", "Progression", "Arithmetic", "Distribute_Three"]
@@ -419,49 +427,55 @@ def select_modifiable_attributes(
         return modifiable_attributes
 
 
-def main():
-    main_arg_parser = argparse.ArgumentParser(description="parser for I-RAVEN")
-    main_arg_parser.add_argument(
+def make_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(description="parser for I-RAVEN")
+    parser.add_argument(
         "--num-samples",
         type=int,
         default=10000,
         help="number of samples for each component configuration",
     )
-    main_arg_parser.add_argument(
+    parser.add_argument(
         "--save-dir",
         type=str,
         default="~/datasets/I-RAVEN",
         help="path to folder where the generated dataset will be saved.",
     )
-    main_arg_parser.add_argument(
+    parser.add_argument(
         "--seed", type=int, default=-1, help="random seed for dataset generation"
     )
-    main_arg_parser.add_argument(
+    parser.add_argument(
         "--fuse", type=int, default=0, help="whether to fuse different configurations"
     )
-    main_arg_parser.add_argument(
+    parser.add_argument(
         "--val",
         type=float,
         default=2,
         help="the proportion of the size of validation set",
     )
-    main_arg_parser.add_argument(
+    parser.add_argument(
         "--test", type=float, default=2, help="the proportion of the size of test set"
     )
-    main_arg_parser.add_argument("--position", action="store_false")
-    main_arg_parser.add_argument("--color", action="store_false")
-    main_arg_parser.add_argument("--type", action="store_false")
-    main_arg_parser.add_argument("--size", action="store_false")
-    main_arg_parser.add_argument(
+    parser.add_argument("--position", action="store_false")
+    parser.add_argument("--position-train-set-rule", type=str, default="Constant")
+    parser.add_argument("--color", action="store_false")
+    parser.add_argument("--color-train-set-rule", type=str, default="Constant")
+    parser.add_argument("--type", action="store_false")
+    parser.add_argument("--type-train-set-rule", type=str, default="Constant")
+    parser.add_argument("--size", action="store_false")
+    parser.add_argument("--size-train-set-rule", type=str, default="Constant")
+    parser.add_argument(
         "--mesh", type=int, default=0, help="0 - no mesh, 1 - random, 2 - rules"
     )
-    main_arg_parser.add_argument(
+    parser.add_argument(
         "--configurations",
         type=str,
         default="center_single,distribute_four,distribute_nine,left_center_single_right_center_single,up_center_single_down_center_single,in_center_single_out_center_single,in_distribute_four_out_center_single",
     )
-    args = main_arg_parser.parse_args()
+    return parser
 
+
+def main(args):
     all_configs = {
         "center_single": build_center_single(args.mesh == 2),
         "distribute_four": build_distribute_four(args.mesh == 2),
@@ -492,8 +506,10 @@ def main():
         for key in all_configs.keys():
             if not os.path.exists(os.path.join(args.save_dir, key)):
                 os.mkdir(os.path.join(args.save_dir, key))
-        separate(args, all_configs)
+        return separate(args, all_configs)
 
 
 if __name__ == "__main__":
-    main()
+    main_arg_parser = make_parser()
+    args = main_arg_parser.parse_args()
+    main(args)

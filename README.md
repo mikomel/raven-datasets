@@ -54,9 +54,29 @@ python main.py --save-dir I-RAVEN-attributeless-size --seed 42 --mesh 0 --size
 python main.py --save-dir I-RAVEN-attributeless-type --seed 42 --mesh 0 --type
 ```
 
+Generate additional regimes (other regimes can be generated analogously):
+```bash
+# Held-out attribute pairs
+python main.py --save-dir I-RAVEN-attributeless-color-size --seed 42 --mesh 0 --color --size
+python main.py --save-dir I-RAVEN-attributeless-color-type --seed 42 --mesh 0 --color --type
+python main.py --save-dir I-RAVEN-attributeless-size-type --seed 42 --mesh 0 --size --type
+
+# Train set rule different from Constant
+python main.py --save-dir I-RAVEN-attributeless-color-progression --seed 42 --mesh 0 --color --color-train-set-rule Progression
+python main.py --save-dir I-RAVEN-attributeless-color-arithmetic --seed 42 --mesh 0 --color --color-train-set-rule Arithmetic
+python main.py --save-dir I-RAVEN-attributeless-color-distributethree --seed 42 --mesh 0 --color --color-train-set-rule Distribute_Three
+```
+
 Generate I-RAVEN-Mesh:
 ```bash
 python main.py --save-dir I-RAVEN-Mesh --seed 42 --mesh 2
+```
+
+## Testing
+
+Unit tests can be run with:
+```bash
+python -m pytest tests
 ```
 
 ## Acknowledgement

@@ -4,3 +4,4 @@ tqdm==4.66.4
 scipy==1.13.1
 opencv-python==4.8.0.74
 pillow==10.3.0
+pytest==8.0.2
