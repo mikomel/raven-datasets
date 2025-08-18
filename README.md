@@ -1,7 +1,8 @@
-# Generalization and Knowledge Transfer in Abstract Visual Reasoning Models
+# A-I-RAVEN and I-RAVEN-Mesh: Two New Benchmarks for Abstract Visual Reasoning
 
 This repository provides implementation of the Attributeless-I-RAVEN and I-RAVEN-Mesh datasets proposed in:
-Małkiński, Mikołaj, and Jacek Mańdziuk. "Generalization and Knowledge Transfer in Abstract Visual Reasoning Models." Preprint. Under review. (2024).
+
+Małkiński, Mikołaj, and Jacek Mańdziuk. "A-I-RAVEN and I-RAVEN-Mesh: Two New Benchmarks for Abstract Visual Reasoning." The 34th International Joint Conference on Artificial Intelligence (IJCAI 2025), Montreal, Canada.
 
 Relevant links:
 * Main project page: https://github.com/mikomel/raven
@@ -46,6 +47,11 @@ Inspect cli arguments:
 python main.py --help
 ```
 
+Generate I-RAVEN-Large:
+```bash
+python main.py --save-dir ~/Datasets/I-RAVEN-Large --seed 42 --num-samples 100000
+```
+
 Generate Attributeless-I-RAVEN:
 ```bash
 python main.py --save-dir I-RAVEN-attributeless-color --seed 42 --mesh 0 --color
@@ -81,3 +87,13 @@ python -m pytest tests
 
 ## Acknowledgement
 This paper builds on the MSc thesis titled "Transfer learning in abstract visual reasoning domain" by Adam Kowalczyk from the Warsaw University of Technology, Warsaw, Poland.
+
+## Citations
+```bibtex
+@inproceedings{malkinski2025airaven,
+  title={{A-I-RAVEN} and {I-RAVEN-Mesh}: Two New Benchmarks for Abstract Visual Reasoning},
+  author={Ma{\l}ki{\'n}ski, Miko{\l}aj and Ma{\'n}dziuk, Jacek},
+  booktitle={Proceedings of the Thirty-Fourth International Joint Conference on Artificial Intelligence, {IJCAI-25}},
+  year={2025}
+}
+```
